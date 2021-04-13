@@ -1,0 +1,63 @@
+version: '2'
+services:
+#    nginx:
+#        image: nginx:latest
+#        ports:
+#            - "80:80"
+#        volumes:
+#        #    - ./hosts:/etc/nginx/conf.d
+#            - ./www:/var/www
+#            - ./logs:/var/log/nginx
+#        links:
+#            - php
+#        networks: 
+#            - net1
+    php:
+        image: php:7.4.16-apache-buster
+        links:
+            - mysql
+        volumes:
+            - ./www:/var/www
+        networks:
+            -  net1
+    apache2:
+        image: httpd:2.4.46
+        ports:
+            - "81:81"
+#        volumes:
+#            - ./config/etc/apache2:/etc/apache2
+#           - ./hosts/apache2:/etc/apache2/sites-available
+#            - ./www/site.ru:/app/www/site.ru
+#            - ./logs/apache:/var/log/apache2
+        links:
+            - php
+        networks: 
+            - net1
+    mysql:
+        image: mariadb
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: SomeP@ssword
+        networks: 
+            - net1
+    pma:
+        image: phpmyadmin/phpmyadmin
+        restart: always
+        links:
+            - mysql:mysql
+        ports:
+            - 8183:80
+        environment:
+            PMA_HOST: mysql
+            MYSQL_USERNAME: root
+            MYSQL_ROOT_PASSWORD: SomeP@ssword
+        networks: 
+            - net1
+
+networks:
+    net1:
+        driver: bridge
+    
